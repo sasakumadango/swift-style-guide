@@ -1,7 +1,7 @@
 # Swift コーディング規約
 ## 基本仕様
 * [Swift6.2の構文に対応している](https://docs.swift.org/swift-book/documentation/the-swift-programming-language)
-* - **[MUST]** [Swift API Design Guideline](https://www.swift.org/documentation/api-design-guidelines/#naming) に従うこと
+* **[MUST]** [Swift API Design Guideline](https://www.swift.org/documentation/api-design-guidelines/#naming) に従うこと
 
 ## 命名
 ### 共通事項
