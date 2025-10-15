@@ -403,18 +403,18 @@ struct Car: Vehicle {
 ```swift
 // Good
 struct Composite<T> {
-	…
-	func compose(other: Composite<T>) -> Composite<T> {
-		return Composite<T>(self, other)
-	}
+    …
+    func compose(other: Composite) -> Composite {
+        return Composite(self, other)
+    }
 }
 
 // Bad
 struct Composite<T> {
-	…
-	func compose(other: Composite) -> Composite {
-		return Composite(self, other)
-	}
+    …
+    func compose(other: Composite<T>) -> Composite<T> {
+        return Composite<T>(self, other)
+    }
 }
 ```
 
