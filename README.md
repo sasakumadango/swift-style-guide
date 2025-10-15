@@ -522,3 +522,4 @@ if let foo = foo {
 * https://google.github.io/swift/#source-file-basics
 * https://github.com/airbnb/swift
 * https://github.com/airbnb/swift?tab=readme-ov-file
+* https://github.com/cookpad/styleguide/blob/master/swift.ja.md
