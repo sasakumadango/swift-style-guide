@@ -118,7 +118,7 @@ let cancelButton: UIButton
 - **[MUST]** UI部品はその部品が何の部品か容易にわかるように命名すること
 ```swift
 // Bad
-let labeltle: UILabel
+let label: UILabel
 let button: UIButton
 
 // Good
