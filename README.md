@@ -1,152 +1,186 @@
-A guide to our Swift style and conventions.
+# Swift コーディング規約
+## 基本仕様
+* [Swift6.2の構文に対応している](https://docs.swift.org/swift-book/documentation/the-swift-programming-language)
+* - **[MUST]** [Swift API Design Guideline](https://www.swift.org/documentation/api-design-guidelines/#naming) に従うこと
 
-This is an attempt to encourage patterns that accomplish the following goals (in
-rough priority order):
+## 命名
+### 共通事項
+- **[MUST]** 非 ASCII 文字を名前に使用しないこと
+- **[MUST]** 意味のある名前を付けること
+- **[MUST]** 省略形を避けること
+     * 必要以上に短縮せず、可読性を優先する
+ 
+### ファイル名
+- **[SHOULD]** class名, protocol名, と一致させること
+     - ただし、関連が分かりやすくなる場合はこの限りではない
+- **[MUST]** extension クラスは元 class名+extension とすること
+    - ex) `Myclass+extension.swift`
 
- 1. Increased rigor, and decreased likelihood of programmer error
- 1. Increased clarity of intent
- 1. Reduced verbosity
- 1. Fewer debates about aesthetics
-
-If you have suggestions, please see our [contribution guidelines](CONTRIBUTING.md),
-then open a pull request. :zap:
-
-----
-
-#### Whitespace
-
- * Tabs, not spaces.
- * End files with a newline.
- * Make liberal use of vertical whitespace to divide code into logical chunks.
- * Don’t leave trailing whitespace.
-   * Not even leading indentation on blank lines.
-
-
-#### Prefer `let`-bindings over `var`-bindings wherever possible
-
-Use `let foo = …` over `var foo = …` wherever possible (and when in doubt). Only use `var` if you absolutely have to (i.e. you *know* that the value might change, e.g. when using the `weak` storage modifier).
-
-_Rationale:_ The intent and meaning of both keywords is clear, but *let-by-default* results in safer and clearer code.
-
-A `let`-binding guarantees and *clearly signals to the programmer* that its value will never change. Subsequent code can thus make stronger assumptions about its usage.
-
-It becomes easier to reason about code. Had you used `var` while still making the assumption that the value never changed, you would have to manually check that.
-
-Accordingly, whenever you see a `var` identifier being used, assume that it will change and ask yourself why.
-
-### Return and break early
-
-When you have to meet certain criteria to continue execution, try to exit early. So, instead of this:
-
+### 変数・定数・プロパティ名／関数名
+- **[MUST]** lowerCamelCaseを使用すること
+     * Swiftでは変数・定数ともにlowerCamelCaseを使用します。
 ```swift
-if n.isNumber {
-    // Use n here
-} else {
-    return
-}
+    let maxRetryCount = 3
+    var currentIndex = 0
 ```
 
-use this:
+- **[MUST]** 定数の命名も変数に従うこと
+  - UpperCamelCase、SNAKE_CASE を用いたりしてはならない
+  
+- **[MUST]** 非 ASCII 文字を名前に使用しないこと
+
+- **[MUST]** 意味のある名前を付けること
+     * 変数や定数が何を表しているのかを明確にする。
 ```swift
-guard n.isNumber else {
-    return
-}
-// Use n here
+    let userAge = 25
+    var isLoggedIn = false
 ```
 
-You can also do it with `if` statement, but using `guard` is prefered, because `guard` statement without `return`, `break` or `continue` produces a compile-time error, so exit is guaranteed.
-
-
-#### Avoid Using Force-Unwrapping of Optionals
-
-If you have an identifier `foo` of type `FooType?` or `FooType!`, don't force-unwrap it to get to the underlying value (`foo!`) if possible.
-
-Instead, prefer this:
-
+- **[MUST]** 省略形を避けること
+     * 必要以上に短縮せず、可読性を優先する。
 ```swift
-if let foo = foo {
-    // Use unwrapped `foo` value in here
-} else {
-    // If appropriate, handle the case where the optional is nil
-}
+// Bad
+let usrAg = 25
+
+// Good
+let userAge = 25
 ```
 
-Alternatively, you might want to use Swift's Optional Chaining in some of these cases, such as:
-
+- **[MUST]** 文脈に応じた名前を付けること
+     * 変数が使われる場所や用途に応じて適切な名前を選ぶ。
 ```swift
-// Call the function if `foo` is not nil. If `foo` is nil, ignore we ever tried to make the call
-foo?.callSomethingIfFooIsNotNil()
+// Bad
+let data = "John"
+
+// Good
+let userName = "John"
 ```
 
-_Rationale:_ Explicit `if let`-binding of optionals results in safer code. Force unwrapping is more prone to lead to runtime crashes.
-
-#### Avoid Using Implicitly Unwrapped Optionals
-
-Where possible, use `let foo: FooType?` instead of `let foo: FooType!` if `foo` may be nil (Note that in general, `?` can be used instead of `!`).
-
-_Rationale:_ Explicit optionals result in safer code. Implicitly unwrapped optionals have the potential of crashing at runtime.
-
-#### Prefer implicit getters on read-only properties and subscripts
-
-When possible, omit the `get` keyword on read-only computed properties and
-read-only subscripts.
-
-So, write these:
-
+- **[MUST]** 定数には名詞、変数には状態を表す動詞を含める
+     * 定数は名詞、変数は動詞を含む名前にする。
 ```swift
-var myGreatProperty: Int {
-	return 4
-}
-
-subscript(index: Int) -> T {
-    return objects[index]
-}
+let maxConnections = 10
+var updateCount = 0
 ```
 
-… not these:
+- **[MUST]** ブール値には肯定的な名前を付ける
+     * `is`や`has`などを使い、真偽が明確になるようにする。
+```swift
+var isUserLoggedIn = true
+let hasPermission = false
+```
+
+- **[MUST]** 単数形・複数形を正しく使うこと
+     * 配列やコレクションには複数形を使う。
+```swift
+let userNames = ["Alice", "Bob"]
+let userName = "Charlie"
+```
+- **[MUST]** 不要なプレフィックスを避ける
+     * `k`や`m`などのプレフィックスは使わない。
+```swift
+// Bad
+let kMaxRetryCount = 3
+
+// Good
+let maxRetryCount = 3
+```
+- **[MUST]** 短すぎる名前を避けること
+     * `x`, `y`のような短い名前は、特別な意味がある場合を除き避ける。
+     * `hoge` や `foo`, `fuga` のような意味のない名前は避ける。
+
+- **[MUST]** ベンダープレフィックスを付与しないこと
+  - ただし、`NSObject`の継承や既存クラスの extension などを用いて Objective-C からも利用可能になる場合は付けること
+  
+- **[SHOULD]** 階層構造を示す命名は避け、ネストで表現すること
 
 ```swift
-var myGreatProperty: Int {
-	get {
-		return 4
-	}
-}
-
-subscript(index: Int) -> T {
-    get {
-        return objects[index]
+// Good
+class Recipe {
+    enum Type {
+        case none
     }
 }
+
 ```
 
-_Rationale:_ The intent and meaning of the first version is clear, and results in less code.
-
-#### Always specify access control explicitly for top-level definitions
-
-Top-level functions, types, and variables should always have explicit access control specifiers:
-
+- **[MUST]** UI部品は末尾にその部品であることが容易にわかるように命名すること
 ```swift
-public var whoopsGlobalState: Int
-internal struct TheFez {}
-private func doTheThings(things: [Thing]) {}
+// Bad
+let title: UILabel
+let cancel: UIButton
+
+// Good
+let titleLabel: String
+let cancelButton: UIButton
 ```
 
-However, definitions within those can leave access control implicit, where appropriate:
-
+- **[MUST]** UI部品はその部品が何の部品か容易にわかるように命名すること
 ```swift
-internal struct TheFez {
-	var owner: Person = Joshaber()
+// Bad
+let labeltle: UILabel
+let button: UIButton
+
+// Good
+let titleLabel: String
+let cancelButton: UIButton
+```
+
+### 型・プロトコル名
+- **[MUST]** UpperCamelCase（パスカルケース） を使います。
+```swift
+// Bad
+class landmarkList {}
+
+// Good
+class LandmarkList {}
+```
+
+- **[SHOULD]** プロトコル名はなるべく「〜Delegate」「〜able」「〜ing」で終わること
+```swift
+// Good
+protocol Animating {}
+
+```
+
+### Enum
+- **[MUST]** UpperCamelCase（パスカルケース） を使います。
+```swift
+// Bad
+enum direction {
+      case north
+      case south
+}
+
+// Good
+enum Direction {
+      case north
+      case south
+}
+```
+- **[MUST]** 値は lowerCamelCase で命名すること
+```swift
+// Bad
+enum Direction {
+      case North
+      case South
+}
+
+// Good
+enum Direction {
+      case north
+      case south
 }
 ```
 
-_Rationale:_ It's rarely appropriate for top-level definitions to be specifically `internal`, and being explicit ensures that careful thought goes into that decision. Within a definition, reusing the same access control specifier is just duplicative, and the default is usually reasonable.
-
-#### When specifying a type, always associate the colon with the identifier
-
-When specifying the type of an identifier, always put the colon immediately
-after the identifier, followed by a space and then the type name.
-
+## コーディング
+### 共通事項
+- **[SHOULD]** 可能な限り、ドキュメントコメントを書くこと
+- **[MUST]** 不要なスペースなどは削除すること
+- **[MUST]** 型の指定では、常にコロンを識別子の後ろに繋げる
+     * 識別子に型を指定する時は、常に識別子のすぐ後ろにコロンを置き、空白を一つあけて型名を書きましょう。
 ```swift
+// Good
 class SmallBatchSustainableFairtrade: Coffee { ... }
 
 let timeToCoffee: NSTimeInterval = 2
@@ -154,57 +188,168 @@ let timeToCoffee: NSTimeInterval = 2
 func makeCoffee(type: CoffeeType) -> Coffee { ... }
 ```
 
-_Rationale:_ The type specifier is saying something about the _identifier_ so
-it should be positioned with it.
-
-Also, when specifying the type of a dictionary, always put the colon immediately
-after the key type, followed by a space and then the value type.
+- **[MUST]** ディクショナリの型定義をするときも、常にキーの型のすぐ後にコロンをおいて、空白の後に値の型を指定します。
 
 ```swift
+// Good
 let capitals: [Country: City] = [ Sweden: Stockholm ]
 ```
-
-#### Only explicitly refer to `self` when required
-
-When accessing properties or methods on `self`, leave the reference to `self` implicit by default:
+- **[MUST]** 将来的に廃止が予定されている構文を使わないこと
+- **[MUST]** 行末に`;`を付けないこと
+- **[MUST]** `self` は省略することただし、インスタンス時やクロージャー内など省略できないところはこの限りではない
+     * `self`の持つプロパティやメソッドへアクセスする時、デフォルトでは`self`への参照は省きましょう。
+     * 明示的に`self`を入れるのは言語によって必要と判断された場合だけにしましょう-たとえばクロージャ内、もしくはパラメータ名の衝突がある場合などです。
 
 ```swift
+// Good
 private class History {
-	var events: [Event]
+    var events: [Event]
 
-	func rewrite() {
-		events = []
-	}
+    func rewrite() {
+        events = []
+    }
 }
-```
 
-Only include the explicit keyword when required by the language—for example, in a closure, or when parameter names conflict:
-
-```swift
 extension History {
-	init(events: [Event]) {
-		self.events = events
-	}
+    init(events: [Event]) {
+        self.events = events
+    }
 
-	var whenVictorious: () -> () {
-		return {
-			self.rewrite()
-		}
-	}
+    var whenVictorious: () -> () {
+        return {
+            self.rewrite()
+        }
+    }
 }
 ```
 
-_Rationale:_ This makes the capturing semantics of `self` stand out more in closures, and avoids verbosity elsewhere.
+### 空白
+- **[MUST]** インデントにはソフトタブを使い、幅は 4 スペースにすること
+- **[MUST]** ファイル終端は改行する
+- **[MUST]** コードをロジック毎に分割するために、空白行を惜しみなく使う
+- **[MUST]** 行末に空白を残さない
+- **[MUST]** オープンブラケットは同じ行に記述すること
+```swift
+// Good
+func update() {
+}
+```
+### オペレータ定義では空白を使う
+- **[MUST]** オペレータを定義するときは、オペレータの前後に空白を使いましょう。  
+```swift
+// Bad
+func <|(lhs: Int, rhs: Int) -> Int
+func <|<<A>(lhs: A, rhs: A) -> A
 
-#### Prefer structs over classes
+// Good
+func <| (lhs: Int, rhs: Int) -> Int
+func <|< <A>(lhs: A, rhs: A) -> A
+```
 
-Unless you require functionality that can only be provided by a class (like identity or deinitializers), implement a struct instead.
-
-Note that inheritance is (by itself) usually _not_ a good reason to use classes, because polymorphism can be provided by protocols, and implementation reuse can be provided through composition.
-
-For example, this class hierarchy:
+### 変数・定数・プロパティ
+- **[MUST]** グローバル変数として定義しないこと
+- **[MUST]** 利用しない戻り値、引数は`_`にすること
+- **[MUST]** 可能な限り`var`宣言よりも`let`宣言を使う
+- **[SHOULD]** 可能な場合は型宣言を省略すること。ただし、型推論がコンパイル速度に影響を及ぼす場合はその限りではない
+- **[MUST]** 最もスコープが狭くなるようにアクセスレベルを設定すること
+- **[MUST]** 外部から読み込めるが、書き込ませたくないプロパティには`private(set)`を明示すること
+- **[MUST]** プロパティの属性として`weak`を使える場所では使うこと
+  - `@IBOutlet`やデリゲートなど、循環参照が発生しうる箇所に付与すること
 
 ```swift
+// Good
+weak var delegate: FooDelegate
+@IBOutlet weak var textLabel: UILabel!
+```
+
+- **[MUST]** Computed Property について、省略可能なとき`get`を省略すること
+
+```swift
+// Good
+var foodCount: Int {
+    return foods.count
+}
+```
+
+- **[SHOULD]** 副作用を伴う場合、`willSet`, `didSet`に記述すること
+
+### 関数
+- **[MUST]** 第一引数を省略しない。ただし、引数が1つで省略した方が自然に理解できる関数名の場合はこの限りではない。
+```swift
+// Bad
+func send(_ message: String, to user: User)
+// Good
+func send(message: String, to user: User)
+```
+
+- **[MUST]** 引数の記載が省略できる場合は省略する
+```swift
+// Good
+func doSomething() -> Void {
+}
+
+// Bad
+func doSomething() {
+}
+```
+
+- **[MUST]** 実行を継続するには基準を満たす必要があるような場合は、なるべく早期にコードブロックから抜け出すようにしましょう。
+```swift
+// Bad
+if n.isNumber {
+    // Use n here
+} else {
+    return
+}
+
+// Good
+guard n.isNumber else {
+    return
+}
+// Use n here
+```
+
+- **[MUST]** 可能であれば `guard`を使い、早めにコードブロックから抜け出すようにしましょう。
+
+
+### Enum
+- **[MUST]** 型名が省略可能なときは省略すること
+```swift
+// Good
+user.status = .guest
+```
+
+- **[MUST]** undefined などの想定していない値の定義はしない。ただし、エラー定義の場合はこの限りではない
+
+```swift
+// Bad
+enum Direction {
+      case north
+      case south
+      case undefined
+}
+
+// Good
+enum Direction {
+      case north
+      case south
+}
+
+// Good
+enum DirectionError: Error {
+      case noItem
+      case undefined
+}
+```
+
+### クラス・構造体
+- **[MUST]** Objective-C からの参照が必要な場合を除き`NSObject`を継承しないこと
+- **[SHOULD]**  クラスより構造体を使うようにする
+     * クラスでしか提供できない機能（同一性やデイニシャライザなど）を必要としない限り、クラスではなく構造体で実装しましょう。
+     * 継承は通常、クラスを使う主な良い理由にはなりません。なぜなら、多様性はプロトコルによって実現可能であり、実装の再利用はコンポジションによって実現可能であるからです。
+
+```swift
+// BAD
 class Vehicle {
     let numberOfWheels: Int
 
@@ -230,9 +375,9 @@ class Car: Vehicle {
 }
 ```
 
-could be refactored into these definitions:
 
 ```swift
+// Good
 protocol Vehicle {
     var numberOfWheels: Int { get }
 }
@@ -249,32 +394,22 @@ struct Car: Vehicle {
     let numberOfWheels = 4
 }
 ```
+- **[MUST]**  デフォルトでクラスを`final`にする
+     * クラスは初めは`final`にしておき、継承の正当な必要性が確認された場合にサブクラス化を許容する目的でのみ変更するべきです。さらにその場合、クラス内のそれぞれのクラスも、可能な限り同じルールに則り、同じように`final`を適用します。
 
-_Rationale:_ Value types are simpler, easier to reason about, and behave as expected with the `let` keyword.
-
-#### Make classes `final` by default
-
-Classes should start as `final`, and only be changed to allow subclassing if a valid need for inheritance has been identified. Even in that case, as many definitions as possible _within_ the class should be `final` as well, following the same rules.
-
-_Rationale:_ Composition is usually preferable to inheritance, and opting _in_ to inheritance hopefully means that more thought will be put into the decision.
-
-
-#### Omit type parameters where possible
-
-Methods of parameterized types can omit type parameters on the receiving type when they’re identical to the receiver’s. For example:
+- **[MUST]** 可能な限り型パラメータは省く
+     * パラメータ化された型のメソッドは、引数の型がレシーバの型と同一の場合は型パラメータを省くことができます。たとえば:
 
 ```swift
+// Good
 struct Composite<T> {
 	…
 	func compose(other: Composite<T>) -> Composite<T> {
 		return Composite<T>(self, other)
 	}
 }
-```
 
-could be rendered as:
-
-```swift
+// Bad
 struct Composite<T> {
 	…
 	func compose(other: Composite) -> Composite {
@@ -283,29 +418,107 @@ struct Composite<T> {
 }
 ```
 
-_Rationale:_ Omitting redundant type parameters clarifies the intent, and makes it obvious by contrast when the returned type takes different type parameters.
-
-#### Use whitespace around operator definitions
-
-Use whitespace around operators when defining them. Instead of:
+### 条件式
+- **[MUST]** 条件式全体を囲う`()`は使わないこと
 
 ```swift
-func <|(lhs: Int, rhs: Int) -> Int
-func <|<<A>(lhs: A, rhs: A) -> A
+// Bad
+if (a == 0) {
+}
+
+// Good
+if a == 0 {
+}
 ```
 
-write:
+- **[SHOULD]** 条件式で値が確定する場合はなるべく let 宣言にすること
+```swift
+// Bad
+var isOK = false
+if a == 0 {  
+    isOK = true
+}
+
+// Good
+let isOK: Bool
+if a == 0 {
+    isOK = true
+} else {
+    isOK = false
+}
+```
+
+- **[MUST]** Bool 判定の場合、冗長な書き方はしない
+```swift
+// Bad
+if isOpen == true {
+}
+
+// Good
+if isOpen {
+}
+```
+
+- **[SHOULD]** Switch 文で `fallthrough` は使用しない
+
+### クロージャー
+- **[MUST]** 引数のクロージャーが 1 つだけの場合、Trailing Closure を利用すること
 
 ```swift
-func <| (lhs: Int, rhs: Int) -> Int
-func <|< <A>(lhs: A, rhs: A) -> A
+// Good
+client.search(for: "Sushi") { recipes in
+}
 ```
 
-_Rationale:_ Operators consist of punctuation characters, which can make them difficult to read when immediately followed by the punctuation for a type or value parameter list. Adding whitespace separates the two more clearly.
+- **[MUST]** 引数がクロージャー 1 つだけの場合、`()`を省略すること
 
-#### Translations
+```swift
+// Good
+let titles = recipes.map { $0.title }
+```
 
-* [中文版](https://github.com/Artwalk/swift-style-guide/blob/master/README_CN.md)
-* [日本語版](README_JP.md)
-* [한국어판](https://github.com/minsOne/swift-style-guide/blob/master/README_KR.md)
-* [Versión en Español](https://github.com/antoniosejas/swift-style-guide/blob/spanish/README-ES.md)
+- **[MUST]** クロージャーの定義が 1 行だけの場合は shorthand argument を利用すること。逆に複数行にわたる場合は利用を避けること
+
+```swift
+// Good
+let titles = recipes.map { $0.title }
+```
+
+```swift
+// Good
+client.search(for: "Sushi") { results, error in
+    if error != nil {
+        recipes = results
+    }
+}
+```
+
+- **[MUST]** 引数としてブロックを受け取るとき、`@escaping`は必要な場合のみ使用すること
+- **[MUST]** `unowned`による変数キャプチャは避け、`weak`を使うこと
+  - 適切に使用した場合はパフォーマンス改善に繋がるが、判断が難しくリスクを伴うため
+  
+### 例外
+- **[MUST]** `NSException`を使用しないこと
+- **[SHOULD]** `do` ~ `catch`を用いて、`try!`の使用は避けること
+
+### オプショナル型の開示指定は避ける
+- **[SHOULD]** `FooType?`もしくは`FooType!`型の変数`foo`がある場合、そこにある`foo!`を得ようとして`foo`に対して開示指定を行うのは可能な限り避けないといけません。
+     * ただし、`@IBOutlet` など 値が確実にあることが保証されている場合はこの限りではない
+```swift
+// Good
+if let foo = foo {
+    // 開示された`foo`の値を使う
+} else {
+    // 必要であれば、ここでオプショナルがnilの場合の処理を行う
+}
+```
+
+---
+### 参考サイト
+* https://github.com/jarinosuke/swift-style-guide
+* https://docs.swift.org/swift-book/documentation/the-swift-programming-language
+* https://www.swift.org/documentation/api-design-guidelines/
+* https://github.com/linkedin/swift-style-guide
+* https://google.github.io/swift/#source-file-basics
+* https://github.com/airbnb/swift
+* https://github.com/airbnb/swift?tab=readme-ov-file
