@@ -14,7 +14,7 @@
 - **[SHOULD]** class名, protocol名, と一致させること
      - ただし、関連が分かりやすくなる場合はこの限りではない
 - **[MUST]** extension クラスは元 class名+extension とすること
-    - ex) `Myclass+Extension.swift`
+    - ex) `MyClass+Extension.swift`
 
 ### 変数・定数・プロパティ名／関数名
 - **[MUST]** lowerCamelCaseを使用すること
